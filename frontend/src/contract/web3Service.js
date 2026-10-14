@@ -431,9 +431,14 @@ export class Web3Service {
   // Connect MetaMask with explicit account picker selection
   async connectMetaMask(forceAccountSelection = true) {
     if (typeof window === "undefined" || !window.ethereum) {
-      throw new Error(
-        "MetaMask is not detected. Please install the MetaMask extension from metamask.io or enable it."
+      const isMobile = typeof navigator !== "undefined" && /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+      const err = new Error(
+        isMobile
+          ? "MOBILE_METAMASK_REQUIRED"
+          : "MetaMask is not detected. Please install the MetaMask extension from metamask.io or enable it."
       );
+      err.isMobile = isMobile;
+      throw err;
     }
 
     try {

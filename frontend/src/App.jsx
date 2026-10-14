@@ -11,6 +11,7 @@ import { ResolveModal } from "./components/ResolveModal";
 import { AuditFeed } from "./components/AuditFeed";
 import { AuthPage } from "./components/AuthPage";
 import { SettingsModal } from "./components/SettingsModal";
+import { MobileWalletModal } from "./components/MobileWalletModal";
 import { Plus, CheckCircle, AlertCircle, Sparkles, Filter } from "lucide-react";
 
 export function App() {
@@ -18,6 +19,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState("all"); // "all", "active", "completed", "disputed"
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMobileWalletModalOpen, setIsMobileWalletModalOpen] = useState(false);
   const [selectedDisputeMilestone, setSelectedDisputeMilestone] = useState(null);
   const [selectedResolveMilestone, setSelectedResolveMilestone] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
@@ -131,7 +133,7 @@ export function App() {
     showToast("Appearance preference updated.");
   };
 
-  // Real MetaMask Connection Handler (with account selection support)
+  // Real MetaMask Connection Handler (with account selection support & mobile fallback)
   const handleConnectWallet = async (forceAccountSelection = true) => {
     try {
       const address = await web3Service.connectMetaMask(forceAccountSelection);
@@ -140,6 +142,10 @@ export function App() {
       showToast(`MetaMask Connected: ${address.slice(0, 6)}... (${realBal}) on ${net}`);
       return address;
     } catch (err) {
+      if (err.isMobile || err.message === "MOBILE_METAMASK_REQUIRED") {
+        setIsMobileWalletModalOpen(true);
+        return null;
+      }
       showToast(err.message || "MetaMask connection was cancelled", "error");
       throw err;
     }
@@ -270,6 +276,10 @@ export function App() {
             showToast("Exploring GradEscrow in Guest / Reviewer mode");
           }}
           realWallet={state.realWallet}
+        />
+        <MobileWalletModal
+          isOpen={isMobileWalletModalOpen}
+          onClose={() => setIsMobileWalletModalOpen(false)}
         />
       </>
     );
@@ -460,6 +470,11 @@ export function App() {
         onLogout={handleLogout}
         appSettings={appSettings}
         onUpdateAppSettings={handleUpdateAppSettings}
+      />
+
+      <MobileWalletModal
+        isOpen={isMobileWalletModalOpen}
+        onClose={() => setIsMobileWalletModalOpen(false)}
       />
 
       {/* Academic Footer */}
