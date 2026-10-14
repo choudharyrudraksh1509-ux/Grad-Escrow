@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradEscrow - Simulation Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; color: #202951; }
+        .dashboard { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 20px; width: 45%; min-width: 400px; }
+        h3 { color: #12A89D; text-align: center; }
+        .description { font-size: 13px; color: #555; text-align: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>GradEscrow: Blockchain Simulation Results</h1>
+        <p>Mathematical proof of the Adaptive Dispute Window & Fund Security (k = 20%, W0 = 7 days)</p>
+    </div>
+
+    <div class="dashboard">
+        <!-- Graph 1: Trust Decay -->
+        <div class="card">
+            <h3>Result 1: Adaptive Dispute Window Decay</h3>
+            <canvas id="decayChart"></canvas>
+            <div class="description">Proves the algorithm successfully shrinks the dispute window linearly as verified trust (n) increases over 5 milestones.</div>
+        </div>
+
+        <!-- Graph 2: Fund Allocation -->
+        <div class="card">
+            <h3>Result 2: Escrow Fund Security vs Freelancer Payout</h3>
+            <canvas id="fundsChart"></canvas>
+            <div class="description">Tracks the movement of ETH. Funds are held securely in Escrow (Blue) until the Adaptive Window clears, transferring to the Freelancer (Teal).</div>
+        </div>
+    </div>
+
+    <script>
+        // Graph 1: Decay Chart
+        const ctx1 = document.getElementById('decayChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Milestone 1', 'Milestone 2', 'Milestone 3', 'Milestone 4', 'Milestone 5'],
+                datasets: [{
+                    label: 'Dispute Window (Days)',
+                    data: [7, 5.6, 4.2, 2.8, 1.4],
+                    borderColor: '#12A89D',
+                    backgroundColor: 'rgba(18, 168, 157, 0.2)',
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true, max: 8, title: { display: true, text: 'Days' } } } }
+        });
+
+        // Graph 2: Funds Chart
+        const ctx2 = document.getElementById('fundsChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Start', 'MS 1 Funded', 'MS 1 Approved', 'MS 2 Funded', 'MS 2 Approved'],
+                datasets: [
+                    {
+                        label: 'ETH Locked in Escrow',
+                        data: [0, 1.0, 0, 2.0, 0],
+                        backgroundColor: '#202951'
+                    },
+                    {
+                        label: 'Total ETH Paid to Freelancer',
+                        data: [0, 0, 1.0, 1.0, 3.0],
+                        backgroundColor: '#12A89D'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Ethereum (ETH)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
