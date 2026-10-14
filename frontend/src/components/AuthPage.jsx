@@ -14,8 +14,9 @@ import {
   Sparkles,
   AlertCircle
 } from "lucide-react";
+import { InstallPwaPrompt } from "./InstallPwaPrompt";
 
-export function AuthPage({ onLoginSuccess, onConnectMetaMask, realWallet }) {
+export function AuthPage({ onLoginSuccess, onConnectMetaMask, onExploreGuest, realWallet }) {
   const [mode, setMode] = useState("login"); // "login" or "signup"
   
   // Login form state
@@ -123,9 +124,20 @@ export function AuthPage({ onLoginSuccess, onConnectMetaMask, realWallet }) {
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
-      padding: "32px 16px",
-      boxSizing: "border-box"
+      padding: "max(24px, var(--safe-top)) max(16px, var(--safe-right)) max(24px, var(--safe-bottom)) max(16px, var(--safe-left))",
+      boxSizing: "border-box",
+      position: "relative"
     }}>
+      {/* Top Bar with PWA Install Prompt */}
+      <div style={{
+        position: "absolute",
+        top: "max(16px, var(--safe-top))",
+        right: "max(16px, var(--safe-right))",
+        zIndex: 20
+      }}>
+        <InstallPwaPrompt />
+      </div>
+
       {/* Container Card */}
       <div className="card-elevated" style={{
         width: "100%",
@@ -389,6 +401,29 @@ export function AuthPage({ onLoginSuccess, onConnectMetaMask, realWallet }) {
                   Arbiter
                 </button>
               </div>
+
+              {onExploreGuest && (
+                <div style={{ marginTop: 12, textAlign: "center", borderTop: "1px solid var(--border-subtle)", paddingTop: 10 }}>
+                  <button
+                    type="button"
+                    onClick={onExploreGuest}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "var(--text-tertiary)",
+                      fontSize: 12,
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      fontFamily: "var(--font-mono)",
+                      transition: "color 0.15s ease"
+                    }}
+                    onMouseEnter={(e) => (e.target.style.color = "var(--accent-gold)")}
+                    onMouseLeave={(e) => (e.target.style.color = "var(--text-tertiary)")}
+                  >
+                    Skip & Explore Dashboard as Guest Reviewer →
+                  </button>
+                </div>
+              )}
             </div>
           </form>
         )}

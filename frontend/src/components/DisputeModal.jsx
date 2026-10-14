@@ -14,7 +14,7 @@ export function DisputeModal({ isOpen, milestone, onClose, onConfirmDispute }) {
   };
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: "fixed",
       inset: 0,
       background: "rgba(0, 0, 0, 0.8)",
@@ -25,7 +25,7 @@ export function DisputeModal({ isOpen, milestone, onClose, onConfirmDispute }) {
       zIndex: 100,
       padding: 16
     }}>
-      <div className="card-elevated" style={{ width: "100%", maxWidth: 500, padding: 24, borderColor: "var(--status-danger-border)" }}>
+      <div className="card-elevated modal-sheet" style={{ width: "100%", maxWidth: 500, padding: 24, borderColor: "var(--status-danger-border)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{

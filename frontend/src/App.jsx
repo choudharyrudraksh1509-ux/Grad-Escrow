@@ -22,6 +22,7 @@ export function App() {
   const [selectedResolveMilestone, setSelectedResolveMilestone] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [showAuthScreen, setShowAuthScreen] = useState(false);
+  const [isGuestMode, setIsGuestMode] = useState(false);
 
   // App cosmetic settings state
   const [appSettings, setAppSettings] = useState({
@@ -71,6 +72,7 @@ export function App() {
 
   // Auth Handlers
   const handleLoginSuccess = (type, payload) => {
+    setIsGuestMode(false);
     if (type === "login") {
       const user = web3Service.login(payload.loginId, payload.password);
       setShowAuthScreen(false);
@@ -86,6 +88,7 @@ export function App() {
       if (matchingUser) {
         web3Service.currentUser = matchingUser;
         web3Service.currentRole = matchingUser.role;
+        web3Service._saveSession(matchingUser);
         setShowAuthScreen(false);
         showToast(`Signed in via MetaMask as ${matchingUser.name}`);
       } else {
@@ -106,6 +109,7 @@ export function App() {
 
   const handleLogout = () => {
     web3Service.logout();
+    setIsGuestMode(false);
     setIsSettingsOpen(false);
     setShowAuthScreen(true);
     showToast("Signed out of session.");
@@ -228,8 +232,10 @@ export function App() {
     return true;
   });
 
-  // If user explicitly navigated to Auth Screen or logged out
-  if (showAuthScreen) {
+  // Default to showing Auth Page first if no active user session and not in guest mode
+  const shouldShowAuth = (!state.currentUser && !isGuestMode) || showAuthScreen;
+
+  if (shouldShowAuth) {
     return (
       <>
         {toastMessage && (
@@ -258,6 +264,11 @@ export function App() {
         <AuthPage
           onLoginSuccess={handleLoginSuccess}
           onConnectMetaMask={() => handleConnectWallet(true)}
+          onExploreGuest={() => {
+            setIsGuestMode(true);
+            setShowAuthScreen(false);
+            showToast("Exploring GradEscrow in Guest / Reviewer mode");
+          }}
           realWallet={state.realWallet}
         />
       </>
@@ -302,7 +313,14 @@ export function App() {
       />
 
       {/* Main Container */}
-      <main style={{ maxWidth: 1380, width: "100%", margin: "0 auto", padding: "28px 24px", flex: 1, boxSizing: "border-box" }}>
+      <main style={{
+        maxWidth: 1380,
+        width: "100%",
+        margin: "0 auto",
+        padding: "20px max(16px, var(--safe-right)) max(28px, var(--safe-bottom)) max(16px, var(--safe-left))",
+        flex: 1,
+        boxSizing: "border-box"
+      }}>
         
         {/* Protocol Hero & Metric Stats */}
         <ProtocolStats state={state} />
@@ -448,7 +466,7 @@ export function App() {
       <footer style={{
         borderTop: "1px solid var(--border-subtle)",
         background: "var(--bg-surface-inset)",
-        padding: "24px",
+        padding: "24px 20px max(24px, var(--safe-bottom)) 20px",
         marginTop: 40,
         textAlign: "center"
       }}>

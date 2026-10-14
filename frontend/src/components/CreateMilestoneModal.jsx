@@ -17,7 +17,7 @@ export function CreateMilestoneModal({ isOpen, onClose, onCreate, projectedWindo
   };
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: "fixed",
       inset: 0,
       background: "rgba(0, 0, 0, 0.75)",
@@ -28,7 +28,7 @@ export function CreateMilestoneModal({ isOpen, onClose, onCreate, projectedWindo
       zIndex: 100,
       padding: 16
     }}>
-      <div className="card-elevated" style={{ width: "100%", maxWidth: 520, padding: 24 }}>
+      <div className="card-elevated modal-sheet" style={{ width: "100%", maxWidth: 520, padding: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{

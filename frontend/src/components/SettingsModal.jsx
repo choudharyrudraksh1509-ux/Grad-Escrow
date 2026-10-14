@@ -103,7 +103,7 @@ export function SettingsModal({
   const displayChainId = realWallet?.connected ? realWallet.chainId : 11155111;
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: "fixed",
       inset: 0,
       background: "rgba(0, 0, 0, 0.8)",
@@ -114,7 +114,7 @@ export function SettingsModal({
       zIndex: 1000,
       padding: 16
     }}>
-      <div className="card-elevated" style={{
+      <div className="card-elevated modal-sheet" style={{
         width: "100%",
         maxWidth: 680,
         maxHeight: "90vh",

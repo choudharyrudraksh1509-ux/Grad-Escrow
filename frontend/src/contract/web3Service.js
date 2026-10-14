@@ -173,7 +173,10 @@ export class Web3Service {
 
     // User authentication state
     this.users = this._loadUsers();
-    this.currentUser = null;
+    this.currentUser = this._loadSession();
+    if (this.currentUser) {
+      this.currentRole = this.currentUser.role;
+    }
 
     this.listeners = new Set();
 
@@ -192,6 +195,28 @@ export class Web3Service {
   _saveUsers() {
     try {
       localStorage.setItem("gradescrow_users", JSON.stringify(this.users));
+    } catch (_) {}
+  }
+
+  _loadSession() {
+    try {
+      const saved = localStorage.getItem("gradescrow_active_session");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const match = this.users.find((u) => u.id === parsed.id || u.loginId === parsed.loginId);
+        return match || parsed;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  _saveSession(user) {
+    try {
+      if (user) {
+        localStorage.setItem("gradescrow_active_session", JSON.stringify(user));
+      } else {
+        localStorage.removeItem("gradescrow_active_session");
+      }
     } catch (_) {}
   }
 
@@ -278,6 +303,7 @@ export class Web3Service {
 
     this.currentUser = user;
     this.currentRole = user.role;
+    this._saveSession(user);
     this._addAuditLog("UserLogin", `Authenticated as ${user.name} (${user.role.toUpperCase()})`);
     this.notify();
     return user;
@@ -307,6 +333,7 @@ export class Web3Service {
 
     this.currentUser = newUser;
     this.currentRole = newUser.role;
+    this._saveSession(newUser);
     this._addAuditLog("UserRegistered", `New ${newUser.role} account created for ${newUser.name}`);
     this.notify();
     return newUser;
@@ -317,6 +344,7 @@ export class Web3Service {
     const user = this.users.find((u) => u.role === role) || this.users[0];
     this.currentUser = user;
     this.currentRole = user.role;
+    this._saveSession(user);
     this._addAuditLog("QuickLogin", `Quick authenticated as sample ${role}: ${user.name}`);
     this.notify();
     return user;
@@ -325,6 +353,7 @@ export class Web3Service {
   // Auth: Logout
   logout() {
     this.currentUser = null;
+    this._saveSession(null);
     this._addAuditLog("UserLogout", "User signed out of session");
     this.notify();
   }
@@ -435,6 +464,7 @@ export class Web3Service {
       if (this.currentUser) {
         this.currentUser.walletAddress = accounts[0];
         this._saveUsers();
+        this._saveSession(this.currentUser);
       }
 
       this._addAuditLog(
@@ -465,6 +495,7 @@ export class Web3Service {
       this.users[index] = this.currentUser;
     }
     this._saveUsers();
+    this._saveSession(this.currentUser);
 
     this._addAuditLog("ProfileUpdated", `User profile updated for ${this.currentUser.name}`);
     this.notify();

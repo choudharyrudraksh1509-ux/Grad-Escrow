@@ -13,7 +13,7 @@ export function ResolveModal({ isOpen, milestone, onClose, onConfirmResolve }) {
   };
 
   return (
-    <div style={{
+    <div className="modal-overlay" style={{
       position: "fixed",
       inset: 0,
       background: "rgba(0, 0, 0, 0.8)",
@@ -24,7 +24,7 @@ export function ResolveModal({ isOpen, milestone, onClose, onConfirmResolve }) {
       zIndex: 100,
       padding: 16
     }}>
-      <div className="card-elevated" style={{ width: "100%", maxWidth: 540, padding: 24 }}>
+      <div className="card-elevated modal-sheet" style={{ width: "100%", maxWidth: 540, padding: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{

@@ -32,15 +32,29 @@
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-full: 9999px;
+
+  /* iPhone Notch, Dynamic Island, and Home Indicator Safe Areas */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html {
+  background-color: var(--bg-canvas);
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  height: 100%;
+}
+
+body {
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -48,12 +62,18 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   overflow-x: hidden;
+  min-height: 100%;
+  overscroll-behavior-y: none;
+  
+  /* Pad safe areas for notch/island and bottom home bar */
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-canvas);
@@ -88,7 +108,7 @@ html, body {
   border-radius: var(--radius-lg);
 }
 
-/* Buttons */
+/* Buttons - 44px min touch target on mobile */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -98,18 +118,24 @@ html, body {
   color: #0A0B0D;
   font-weight: 600;
   font-size: 14px;
+  min-height: 40px;
   padding: 9px 18px;
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   transition: all 0.18s ease;
   font-family: var(--font-sans);
+  user-select: none;
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-gold-hover);
   box-shadow: 0 0 16px var(--accent-gold-glow);
   transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-primary:disabled {
@@ -128,18 +154,24 @@ html, body {
   color: var(--text-primary);
   font-weight: 500;
   font-size: 14px;
+  min-height: 40px;
   padding: 9px 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-medium);
   cursor: pointer;
   transition: all 0.18s ease;
   font-family: var(--font-sans);
+  user-select: none;
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--bg-surface-hover);
   border-color: var(--border-focus);
   color: #FFFFFF;
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-secondary:disabled {
@@ -156,18 +188,24 @@ html, body {
   color: #F87171;
   font-weight: 500;
   font-size: 14px;
+  min-height: 40px;
   padding: 9px 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--status-danger-border);
   cursor: pointer;
   transition: all 0.18s ease;
   font-family: var(--font-sans);
+  user-select: none;
 }
 
 .btn-danger:hover:not(:disabled) {
   background: rgba(220, 38, 38, 0.22);
   border-color: var(--status-danger);
   color: #FFFFFF;
+}
+
+.btn-danger:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-danger:disabled {
@@ -180,13 +218,14 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: var(--radius-full);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-family: var(--font-mono);
+  user-select: none;
 }
 
 .badge-gold {
@@ -218,18 +257,19 @@ html, body {
   animation: goldPulse 2s infinite;
 }
 
-/* Input Fields */
+/* Input Fields - 44px height for mobile tapping */
 input, textarea, select {
   width: 100%;
   background: var(--bg-surface-inset);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
-  padding: 11px 14px;
+  padding: 12px 14px;
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px; /* 16px/15px prevents iOS Safari auto-zoom on focus */
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: text;
 }
 
 input:focus, textarea:focus, select:focus {
@@ -239,4 +279,53 @@ input:focus, textarea:focus, select:focus {
 
 input::placeholder, textarea::placeholder {
   color: var(--text-tertiary);
+}
+
+/* ================= MOBILE & TABLET RESPONSIVE SYSTEM ================= */
+
+/* Phones & Small Tablets (Portrait) */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
+
+  /* Modals transform into Native Mobile Bottom Sheets */
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .modal-sheet {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    border-bottom: none !important;
+    border-inline: none !important;
+    max-height: 88vh !important;
+    padding-bottom: max(24px, var(--safe-bottom)) !important;
+    animation: slideUp 0.25s ease-out;
+  }
+
+  /* Single Column Card Grid */
+  .mobile-grid-single {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Header adjustments for notch & island */
+  .mobile-header {
+    padding: max(14px, var(--safe-top)) 16px 12px 16px !important;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
