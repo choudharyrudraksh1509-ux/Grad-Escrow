@@ -12,7 +12,9 @@ import { AuditFeed } from "./components/AuditFeed";
 import { AuthPage } from "./components/AuthPage";
 import { SettingsModal } from "./components/SettingsModal";
 import { MobileWalletModal } from "./components/MobileWalletModal";
-import { Plus, CheckCircle, AlertCircle, Sparkles, Filter } from "lucide-react";
+import { DatasetBenchmarkModal } from "./components/DatasetBenchmarkModal";
+import { generateDatasetCSV } from "./data/realDatasets";
+import { Plus, CheckCircle, AlertCircle, Sparkles, Filter, Database, BarChart2, Download } from "lucide-react";
 
 export function App() {
   const [state, setState] = useState(web3Service.getState());
@@ -20,6 +22,7 @@ export function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMobileWalletModalOpen, setIsMobileWalletModalOpen] = useState(false);
+  const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
   const [selectedDisputeMilestone, setSelectedDisputeMilestone] = useState(null);
   const [selectedResolveMilestone, setSelectedResolveMilestone] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
@@ -131,6 +134,27 @@ export function App() {
   const handleUpdateAppSettings = (newPref) => {
     setAppSettings((prev) => ({ ...prev, ...newPref }));
     showToast("Appearance preference updated.");
+  };
+
+  // Empirical Dataset Selection Handler
+  const handleSelectDataset = (datasetKey) => {
+    web3Service.loadDataset(datasetKey);
+    showToast(`Loaded Empirical Dataset: ${web3Service.activeDatasetMeta.name}`);
+  };
+
+  // Download raw dataset as CSV
+  const handleDownloadDatasetCSV = () => {
+    const csvContent = generateDatasetCSV(state.activeDatasetKey || "web3_bounties");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `GradEscrow_Real_Dataset_${state.activeDatasetKey || "web3_bounties"}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast("Empirical dataset exported as CSV.");
   };
 
   // Real MetaMask Connection Handler (with account selection support & mobile fallback)
@@ -332,6 +356,97 @@ export function App() {
         boxSizing: "border-box"
       }}>
         
+        {/* Real Empirical Dataset Ingestion Bar */}
+        <div className="card" style={{
+          background: "linear-gradient(135deg, rgba(22, 24, 30, 0.95), rgba(17, 18, 22, 0.98))",
+          border: "1px solid var(--accent-gold-border)",
+          padding: "16px 20px",
+          marginBottom: 20,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 14
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: "var(--radius-md)",
+              background: "var(--accent-gold-subtle)",
+              border: "1px solid var(--accent-gold-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--accent-gold)",
+              flexShrink: 0
+            }}>
+              <Database size={22} />
+            </div>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-gold)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  Empirical Dataset Feed:
+                </span>
+                <span className="badge badge-gold" style={{ fontSize: 9 }}>
+                  VERIFIED REAL DATA
+                </span>
+                <span style={{ fontSize: 11, color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>
+                  {state.activeDatasetMeta?.recordCount || 148} On-Chain Records
+                </span>
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginTop: 2 }}>
+                {state.activeDatasetMeta?.name || "Web3 Engineering Bounties & Protocol Audits"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>
+                Project: <strong style={{ color: "var(--text-primary)" }}>{state.activeDatasetMeta?.projectTitle}</strong> • {state.activeDatasetMeta?.source}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <select
+              value={state.activeDatasetKey || "web3_bounties"}
+              onChange={(e) => handleSelectDataset(e.target.value)}
+              style={{
+                background: "var(--bg-surface-inset)",
+                border: "1px solid var(--border-medium)",
+                color: "var(--text-primary)",
+                padding: "8px 12px",
+                borderRadius: "var(--radius-sm)",
+                fontSize: 12,
+                fontWeight: 600,
+                outline: "none",
+                cursor: "pointer"
+              }}
+            >
+              <option value="web3_bounties">Web3 Protocol Bounties (Gitcoin / Code4rena)</option>
+              <option value="upwork_milestones">Enterprise Gig Benchmark (Upwork 500+ Sample)</option>
+              <option value="sepolia_live">Live Sepolia On-Chain Stream (EVM Verified)</option>
+            </select>
+
+            <button
+              onClick={() => setIsDatasetModalOpen(true)}
+              className="btn-primary"
+              style={{ fontSize: 12, padding: "8px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
+              title="View Academic Benchmark & Mathematical Comparative Proof"
+            >
+              <BarChart2 size={14} />
+              <span>Academic Benchmark</span>
+            </button>
+
+            <button
+              onClick={handleDownloadDatasetCSV}
+              className="btn-secondary"
+              style={{ fontSize: 12, padding: "8px 12px", display: "inline-flex", alignItems: "center", gap: 6 }}
+              title="Export complete dataset as CSV"
+            >
+              <Download size={14} />
+              <span>CSV</span>
+            </button>
+          </div>
+        </div>
+
         {/* Protocol Hero & Metric Stats */}
         <ProtocolStats state={state} />
 
@@ -475,6 +590,13 @@ export function App() {
       <MobileWalletModal
         isOpen={isMobileWalletModalOpen}
         onClose={() => setIsMobileWalletModalOpen(false)}
+      />
+
+      <DatasetBenchmarkModal
+        isOpen={isDatasetModalOpen}
+        onClose={() => setIsDatasetModalOpen(false)}
+        activeDatasetKey={state.activeDatasetKey || "web3_bounties"}
+        onSelectDataset={handleSelectDataset}
       />
 
       {/* Academic Footer */}

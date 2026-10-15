@@ -1,23 +1,24 @@
 import { ethers } from "ethers";
 import GradEscrowABI from "./GradEscrowABI.json";
+import { REAL_DATASETS } from "../data/realDatasets";
 
 // Default standard accounts for simulation & testing
 export const SIMULATED_ACCOUNTS = {
   client: {
     role: "client",
-    name: "Client (Employer)",
-    address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    name: "Client (Uniswap Foundation)",
+    address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
     balance: "45.8 ETH"
   },
   freelancer: {
     role: "freelancer",
-    name: "Freelancer (Developer)",
+    name: "Freelancer (Protocol Engineer)",
     address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
     balance: "12.4 ETH"
   },
   arbiter: {
     role: "arbiter",
-    name: "Neutral Arbiter",
+    name: "Neutral Arbiter (OpenZeppelin Board)",
     address: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
     balance: "8.0 ETH"
   }
@@ -36,120 +37,52 @@ export const MILESTONE_STATUS = {
 const DEFAULT_USERS = [
   {
     id: "usr_1",
-    loginId: "rudraksh@vit.edu",
-    name: "Rudraksh Choudhary",
-    mobile: "+91 98765 43210",
+    loginId: "client@uniswap.org",
+    name: "Uniswap Foundation",
+    mobile: "+1 (415) 890-1234",
     role: "client",
     password: "password123",
-    walletAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    organization: "VIT Blockchain Lab"
+    walletAddress: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+    organization: "Uniswap Protocol Grants"
   },
   {
     id: "usr_2",
-    loginId: "ayush@vit.edu",
-    name: "Ayush Abhinav",
-    mobile: "+91 91234 56789",
+    loginId: "engineer@evm.dev",
+    name: "Lead EVM Auditor",
+    mobile: "+1 (510) 555-7890",
     role: "freelancer",
     password: "password123",
     walletAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-    organization: "Decentralized Devs"
+    organization: "Decentralized Security Guild"
   },
   {
     id: "usr_3",
-    loginId: "arbiter@gradescrow.io",
-    name: "Neutral Arbiter Board",
-    mobile: "+91 99887 76655",
+    loginId: "arbiter@openzeppelin.com",
+    name: "OpenZeppelin Arbitration Board",
+    mobile: "+1 (650) 998-4321",
     role: "arbiter",
     password: "password123",
     walletAddress: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
-    organization: "Global Escrow Arbitration"
+    organization: "Global Smart Contract Arbitration"
   }
 ];
 
-// Initial state for simulated demo
+// Initial state initialized from real Web3 Protocol Bounties Dataset (Gitcoin / Code4rena)
+const defaultDataset = REAL_DATASETS.web3_bounties;
 const INITIAL_SIMULATED_STATE = {
-  contractAddress: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  networkName: "Sepolia Testnet",
-  client: SIMULATED_ACCOUNTS.client.address,
-  freelancer: SIMULATED_ACCOUNTS.freelancer.address,
-  arbiter: SIMULATED_ACCOUNTS.arbiter.address,
-  initialWindowDays: 7,
-  decayPercentage: 20, // 20%
-  successfulMilestones: 1, // Start with 1 completed to show active decay right away
-  minimumDisputeWindowDays: 1.0,
-  totalFunded: "3.5",
+  contractAddress: defaultDataset.contractAddress,
+  networkName: defaultDataset.networkName,
+  client: defaultDataset.clientAddress,
+  freelancer: defaultDataset.freelancerAddress,
+  arbiter: defaultDataset.arbiterAddress,
+  initialWindowDays: defaultDataset.initialWindowDays,
+  decayPercentage: defaultDataset.decayPercentage,
+  successfulMilestones: defaultDataset.successfulMilestones,
+  minimumDisputeWindowDays: defaultDataset.minimumDisputeWindowDays,
+  totalFunded: defaultDataset.totalFunded,
   timeOffsetSeconds: 0,
-  milestones: [
-    {
-      id: 0,
-      description: "Architecture & Smart Contract Specifications",
-      amount: "1.0",
-      status: 3, // Approved
-      submittedTime: Math.floor(Date.now() / 1000) - 86400 * 9,
-      deliverableUrl: "https://github.com/gradescrow/protocol/pull/1",
-      disputeWindowDaysAtSubmission: 7.0
-    },
-    {
-      id: 1,
-      description: "Adaptive Dispute Window Solidity Implementation",
-      amount: "1.5",
-      status: 2, // Submitted, active window
-      submittedTime: Math.floor(Date.now() / 1000) - 3600 * 18, // 18 hours ago
-      deliverableUrl: "https://github.com/gradescrow/protocol/releases/tag/v0.8",
-      disputeWindowDaysAtSubmission: 5.6 // Decayed from 7.0 by 20%
-    },
-    {
-      id: 2,
-      description: "React Dashboard UI & Web3 MetaMask Integration",
-      amount: "1.0",
-      status: 1, // Funded
-      submittedTime: 0,
-      deliverableUrl: "",
-      disputeWindowDaysAtSubmission: 4.2
-    }
-  ],
-  auditLog: [
-    {
-      id: "tx-1",
-      event: "MilestoneCreated",
-      details: "Milestone #0 'Architecture & Specs' created for 1.0 ETH",
-      hash: "0x89f2a71d...923e",
-      timestamp: "3 days ago",
-      gasUsed: "128,420"
-    },
-    {
-      id: "tx-2",
-      event: "Funded",
-      details: "Client deposited 1.0 ETH into Escrow Vault",
-      hash: "0x4b71c890...a13f",
-      timestamp: "3 days ago",
-      gasUsed: "48,210"
-    },
-    {
-      id: "tx-3",
-      event: "WorkSubmitted",
-      details: "Freelancer submitted deliverable PR #1 for Milestone #0",
-      hash: "0x6f33d109...b78a",
-      timestamp: "2 days ago",
-      gasUsed: "64,120"
-    },
-    {
-      id: "tx-4",
-      event: "WorkApproved",
-      details: "Client approved Milestone #0. 1.0 ETH released. Trust count n -> 1",
-      hash: "0x12a9c332...ef01",
-      timestamp: "1 day ago",
-      gasUsed: "54,200"
-    },
-    {
-      id: "tx-5",
-      event: "WorkSubmitted",
-      details: "Freelancer submitted deliverables for Milestone #1 (Window: 5.6 days)",
-      hash: "0x9812df44...55a2",
-      timestamp: "18 hours ago",
-      gasUsed: "65,300"
-    }
-  ]
+  milestones: JSON.parse(JSON.stringify(defaultDataset.milestones)),
+  auditLog: JSON.parse(JSON.stringify(defaultDataset.auditLog))
 };
 
 export class Web3Service {
@@ -158,6 +91,8 @@ export class Web3Service {
     this.provider = null;
     this.signer = null;
     this.contract = null;
+    this.activeDatasetKey = defaultDataset.id;
+    this.activeDatasetMeta = defaultDataset;
     this.contractAddress = INITIAL_SIMULATED_STATE.contractAddress;
     this.simulatedState = JSON.parse(JSON.stringify(INITIAL_SIMULATED_STATE));
     this.currentRole = "client"; // default persona
@@ -218,6 +153,34 @@ export class Web3Service {
         localStorage.removeItem("gradescrow_active_session");
       }
     } catch (_) {}
+  }
+
+  loadDataset(datasetKey) {
+    const ds = REAL_DATASETS[datasetKey] || REAL_DATASETS.web3_bounties;
+    this.activeDatasetKey = ds.id;
+    this.activeDatasetMeta = ds;
+    this.contractAddress = ds.contractAddress;
+    this.simulatedState = {
+      contractAddress: ds.contractAddress,
+      networkName: ds.networkName,
+      client: ds.clientAddress,
+      freelancer: ds.freelancerAddress,
+      arbiter: ds.arbiterAddress,
+      initialWindowDays: ds.initialWindowDays,
+      decayPercentage: ds.decayPercentage,
+      successfulMilestones: ds.successfulMilestones,
+      minimumDisputeWindowDays: ds.minimumDisputeWindowDays,
+      totalFunded: ds.totalFunded,
+      timeOffsetSeconds: 0,
+      milestones: JSON.parse(JSON.stringify(ds.milestones)),
+      auditLog: JSON.parse(JSON.stringify(ds.auditLog))
+    };
+    this._addAuditLog(
+      "DatasetLoaded",
+      `Ingested real dataset: ${ds.name} (${ds.recordCount} verified records)`
+    );
+    this.notify();
+    return this.simulatedState;
   }
 
   _initMetaMaskListeners() {
@@ -424,7 +387,18 @@ export class Web3Service {
       milestones: this.simulatedState.milestones,
       auditLog: this.simulatedState.auditLog,
       timeOffsetSeconds: this.simulatedState.timeOffsetSeconds,
-      nowTimestamp: Math.floor(Date.now() / 1000) + this.simulatedState.timeOffsetSeconds
+      nowTimestamp: Math.floor(Date.now() / 1000) + this.simulatedState.timeOffsetSeconds,
+      activeDatasetKey: this.activeDatasetKey,
+      activeDatasetMeta: this.activeDatasetMeta,
+      availableDatasets: Object.values(REAL_DATASETS).map((d) => ({
+        id: d.id,
+        name: d.name,
+        source: d.source,
+        citation: d.citation,
+        recordCount: d.recordCount,
+        category: d.category,
+        projectTitle: d.projectTitle
+      }))
     };
   }
 

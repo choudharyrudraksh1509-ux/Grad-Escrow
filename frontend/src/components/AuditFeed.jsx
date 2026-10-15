@@ -79,7 +79,26 @@ export function AuditFeed({ auditLog }) {
               color: "var(--text-tertiary)"
             }}>
               <span>Gas: {log.gasUsed}</span>
-              <span style={{ color: "var(--accent-gold)" }}>{log.hash}</span>
+              {log.fullHash ? (
+                <a
+                  href={`https://sepolia.etherscan.io/tx/${log.fullHash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    color: "var(--accent-gold)",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 3
+                  }}
+                  title="Verify on Sepolia Etherscan"
+                >
+                  <span>{log.hash}</span>
+                  <ExternalLink size={10} />
+                </a>
+              ) : (
+                <span style={{ color: "var(--accent-gold)" }}>{log.hash}</span>
+              )}
               <span>{log.timestamp}</span>
             </div>
           </div>

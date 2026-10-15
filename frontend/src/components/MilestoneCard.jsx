@@ -137,35 +137,68 @@ export function MilestoneCard({
       </div>
 
       {/* Submission info & Deliverables link */}
-      {milestone.deliverableUrl && (
+      {(milestone.deliverableUrl || milestone.txHash) && (
         <div style={{
           display: "flex",
           alignItems: "center",
-          gap: 8,
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 10,
           background: "var(--bg-surface-inset)",
           border: "1px solid var(--border-subtle)",
-          padding: "8px 12px",
+          padding: "9px 12px",
           borderRadius: "var(--radius-sm)",
           fontSize: 12,
           marginBottom: 12
         }}>
-          <span style={{ color: "var(--text-tertiary)" }}>Deliverable Proof:</span>
-          <a
-            href={milestone.deliverableUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              color: "var(--accent-gold)",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              fontFamily: "var(--font-mono)"
-            }}
-          >
-            {milestone.deliverableUrl}
-            <ExternalLink size={12} />
-          </a>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span className="badge badge-gold" style={{ fontSize: 9 }}>
+              {milestone.deliverableType || "Verified Deliverable"}
+            </span>
+            {milestone.deliverableUrl ? (
+              <a
+                href={milestone.deliverableUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  color: "var(--accent-gold)",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11
+                }}
+              >
+                <span>{milestone.deliverableUrl.length > 55 ? `${milestone.deliverableUrl.slice(0, 52)}...` : milestone.deliverableUrl}</span>
+                <ExternalLink size={12} />
+              </a>
+            ) : (
+              <span style={{ color: "var(--text-tertiary)" }}>Pending deliverable submission</span>
+            )}
+          </div>
+
+          {milestone.txHash && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontFamily: "var(--font-mono)" }}>
+              <span style={{ color: "var(--text-tertiary)" }}>On-Chain:</span>
+              <a
+                href={`https://sepolia.etherscan.io/tx/${milestone.txHash}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  color: "var(--text-secondary)",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 3
+                }}
+                title="Verify transaction on Sepolia Etherscan"
+              >
+                <span>{milestone.txHash.slice(0, 10)}...</span>
+                <ExternalLink size={10} />
+              </a>
+            </div>
+          )}
         </div>
       )}
 
